@@ -6,7 +6,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: "172.16.60.42"  # Use the IP or external address of your Ingress controller
+  - host: "192.168.49.2"  # Use the IP or external address of your Ingress controller
     http:
       paths:
       - path: /user
