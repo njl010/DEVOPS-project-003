@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: payment
-          image: njl010docker/order:latest # Replace with your Docker image
+          image: njl010docker/payment:latest # Replace with your Docker image
           ports:
             - containerPort: 3000
 
