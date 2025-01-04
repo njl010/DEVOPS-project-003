@@ -4,7 +4,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const app = express();
-const port = 80;
+const port = 3000;
 
 // Serve static files (like CSS, images, etc.)
 app.use(express.static(path.join(__dirname, 'public')));
