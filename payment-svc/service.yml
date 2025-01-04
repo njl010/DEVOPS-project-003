@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-svc
+spec:
+  selector:
+    app: payment-svc
+  ports:
+    - protocol: TCP
+      port: 3000         # Port inside the cluster
+      targetPort: 3000    # Port the app is listening on
+      nodePort: 30030   # Exposed external port
+  type: NodePort
+

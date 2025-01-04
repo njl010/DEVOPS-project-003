@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: "172.16.60.42"  # Use the IP or external address of your Ingress controller
+    http:
+      paths:
+      - path: /user
+        pathType: Prefix
+        backend:
+          service:
+            name: user
+            port:
+              number: 3000
+      - path: /product
+        pathType: Prefix
+        backend:
+          service:
+            name: product
+            port:
+              number: 3000
+      - path: /payment
+        pathType: Prefix
+        backend:
+          service:
+            name: payment
+            port:
+              number: 3000
+      - path: /order
+        pathType: Prefix
+        backend:
+          service:
+            name: order
+            port:
+              number: 3000

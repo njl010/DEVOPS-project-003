@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - User Service</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Login</h1>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required />
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div id="token-display"></div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Normally you'd send a POST request with username/password, but for simplicity,
+            // we're directly calling the GET /login endpoint here.
+            fetch('/login')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.token) {
+                        document.getElementById('token-display').innerHTML = `
+                            <h2>Login Successful!</h2>
+                            <p>Your JWT Token: <code>${data.token}</code></p>
+                        `;
+                    } else {
+                        document.getElementById('token-display').innerHTML = `<p>Login failed!</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('token-display').innerHTML = `<p>Error occurred!</p>`;
+                });
+        });
+    </script>
+</body>
+</html>

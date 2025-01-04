@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-svc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-svc
+  template:
+    metadata:
+      labels:
+        app: order-svc
+    spec:
+      containers:
+        - name: order-svc
+          image: njl010docker/order:latest # Replace with your Docker image
+          ports:
+            - containerPort: 3000
+
