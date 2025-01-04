@@ -1,0 +1,84 @@
+
+pipeline {
+    agent any
+    
+    environment {
+        // Set KUBECONFIG to use the correct kubeconfig file on Jenkins server
+        KUBECONFIG = '/home/njl/.kube/config'
+    }
+
+    
+    stages {
+        stage('Fetch kubeconfig from remote server') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'remote-server-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                    script {
+                        // SCP the kubeconfig file from the remote server to Jenkins
+                        sh """
+                            scp -i $SSH_KEY -o StrictHostKeyChecking=no njl@172.16.60.42:/home/njl/.kube/config /tmp/kubeconfig
+                        """
+                    }
+                }
+            }
+        }
+        
+    stages {
+        stage('Clone Git repo') {
+            steps {
+                git url: 'https://github.com/njl010/DEVOPS-project-003.git', branch: 'main'
+            }
+        }
+        
+        
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    // Build the Docker images
+                    sh 'docker build -f order-svc/dockerfile -t njl010docker/order:latest order-svc/'
+                    sh 'docker build -f payment-svc/dockerfile -t njl010docker/payment:latest payment-svc/'
+                    sh 'docker build -f user-svc/dockerfile -t njl010docker/user:latest user-svc/'
+                    sh 'docker build -f product-svc/dockerfile -t njl010docker/product:latest product-svc/'
+                }
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'githubcredentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        // Login to Docker Hub using stored credentials
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    }
+                }
+            }
+        }
+
+        stage('Tag and Push Docker Images') {
+            steps {
+                script {
+                    // Tag and push the Docker images
+                    sh 'docker push njl010docker/payment:latest'
+                    sh 'docker push njl010docker/user:latest'
+                    sh 'docker push njl010docker/product:latest'
+                    sh 'docker push njl010docker/order:latest'
+                }
+            }
+        }
+
+        stage('Run Kubernetes Manifest and Ingress') {
+            steps {
+                script {
+                    // Ensure kubectl is using the correct KUBECONFIG
+                    sh 'kubectl apply -f order-svc/deployment.yml '
+                    sh 'kubectl apply -f order-svc/service.yaml'
+                    sh 'kubectl apply -f payment-svc/deployment.yml '
+                    sh 'kubectl apply -f payment-svc/service.yaml'
+                    sh 'kubectl apply -f product-svc/deployment.yml '
+                    sh 'kubectl apply -f product-svc/service.yaml'
+                    sh 'kubectl apply -f user-svc/service.yaml'
+                    sh 'kubectl apply -f ingress.yml'
+                }
+            }
+        }
+    }
+}
